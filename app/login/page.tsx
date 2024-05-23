@@ -1,14 +1,24 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { registerUser } from "../actions/registerUser";
+import { logInUser } from "../actions/logInUser";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const [state, formAction] = useFormState(registerUser, null);
+  const [state, formAction] = useFormState(logInUser, null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state && state.error === false) {
+      localStorage.setItem("finance-tracker-token", state.token);
+      router.push("/dashboard");
+    }
+  }, [state]);
 
   return (
     <div className="flex flex-col items-center mx-auto bg-slate-900 mt-20 pt-16 pb-12 w-[500px] rounded-xl">
-      <div className="text-2xl font-bold mb-4">Register</div>
+      <div className="text-2xl font-bold mb-4">Log In</div>
       <div className="text-sm font-medium mb-8 text-slate-300">
         Please enter the following information
       </div>
@@ -28,19 +38,6 @@ export default function Page() {
           autoComplete="off"
         />
         <label
-          htmlFor="email"
-          className="block text-sm font-medium text-slate-100"
-        >
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          className="p-2 bg-slate-300 text-slate-950 font-medium rounded-md mt-2 mb-8"
-          required
-        />
-        <label
           htmlFor="password"
           className="block text-sm font-medium text-slate-100"
         >
@@ -58,10 +55,10 @@ export default function Page() {
           type="submit"
           className="block mx-auto py-2 px-4 bg-slate-600 text-slate-100 text-sm font-medium rounded hover:bg-slate-500 mb-8"
         >
-          Register
+          Log In
         </button>
         <div className="text-sm font-medium text-slate-300 mx-auto w-fit h-2">
-          {state}
+          {state?.message}
         </div>
       </form>
     </div>
