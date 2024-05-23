@@ -1,7 +1,7 @@
 import "dotenv/config";
 import Fastify, { FastifyReply, FastifyRequest } from "fastify";
 import Next from "next";
-import { db } from "./database";
+import userRoutes from "./api/user";
 import fastifyCors from "@fastify/cors";
 import { fastifyHelmet } from "@fastify/helmet";
 import { fastifyJwt } from "@fastify/jwt";
@@ -22,10 +22,7 @@ fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET || "" });
 // Wait for the Next app to be ready, then start the Fastify server
 app.prepare().then(() => {
   // API route declarations
-  fastify.get("/api/users", async () => {
-    const rows = await db.selectFrom("users").selectAll().execute();
-    return { users: rows };
-  });
+  fastify.register(userRoutes);
 
   // Pass any route not handled by Fastify to the Next app
   // This is where requests for front-end pages will land
