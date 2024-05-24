@@ -96,6 +96,20 @@ async function userRoutes(fastify: FastifyInstance, options: Object) {
       }
     }
   );
+
+  fastify.post(
+    "/api/user/username",
+    async (
+      request: FastifyRequest<{ Body: { token: string } }>,
+      reply: FastifyReply
+    ) => {
+      const { token } = request.body;
+
+      const decode = fastify.jwt.decode(token);
+
+      reply.send(decode);
+    }
+  );
 }
 
 export default userRoutes;

@@ -1,5 +1,7 @@
 "use server";
 
+import { cookies } from "next/headers";
+
 export async function logInUser(prevState: any, formData: FormData) {
   const username = formData.get("username");
   const password = formData.get("password");
@@ -13,6 +15,8 @@ export async function logInUser(prevState: any, formData: FormData) {
   const data = await response.json();
 
   if (response.ok) {
+    cookies().set("finance-tracker-token", data.token);
+
     return {
       error: false,
       message: "Successfully logged in",
