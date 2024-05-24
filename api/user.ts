@@ -97,6 +97,7 @@ async function userRoutes(fastify: FastifyInstance, options: Object) {
     }
   );
 
+  // Get the user's username
   fastify.post(
     "/api/user/username",
     async (
@@ -108,6 +109,42 @@ async function userRoutes(fastify: FastifyInstance, options: Object) {
       const decode = fastify.jwt.decode(token);
 
       reply.send(decode);
+    }
+  );
+
+  fastify.post(
+    "/api/user/get",
+    async (
+      request: FastifyRequest<{ Body: { token: string } }>,
+      reply: FastifyReply
+    ) => {
+      const { token } = request.body;
+
+      const decode: { id: number; username: string; iat: number } | null =
+        fastify.jwt.decode(token);
+
+      if (decode === null) {
+        return null;
+      }
+
+      const { username } = decode;
+
+      try {
+        // Find the user if they exist
+        const user = await db
+          .selectFrom("users")
+          .select(["username", "email", "created_at"])
+          .where("username", "=", username)
+          .executeTakeFirst();
+
+        if (!user) {
+          return reply.status(400).send({ error: "Could not find user" });
+        }
+
+        reply.send(user);
+      } catch (error) {
+        reply.status(500).send(error);
+      }
     }
   );
 }
